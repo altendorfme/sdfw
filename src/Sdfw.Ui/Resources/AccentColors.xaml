@@ -1,0 +1,14 @@
+<ResourceDictionary
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+
+    <!-- System Accent Colors (required by some templates via StaticResource) -->
+    <Color x:Key="SystemAccentColorPrimary">#FF0078D4</Color>
+    <Color x:Key="SystemAccentColorSecondary">#FF106EBE</Color>
+    <Color x:Key="SystemAccentColorTertiary">#FF005A9E</Color>
+
+    <SolidColorBrush x:Key="SystemAccentColorPrimaryBrush" Color="{StaticResource SystemAccentColorPrimary}" />
+    <SolidColorBrush x:Key="SystemAccentColorSecondaryBrush" Color="{StaticResource SystemAccentColorSecondary}" />
+    <SolidColorBrush x:Key="SystemAccentColorTertiaryBrush" Color="{StaticResource SystemAccentColorTertiary}" />
+
+</ResourceDictionary>

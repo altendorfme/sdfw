@@ -1,0 +1,88 @@
+name: build-and-release
+
+on:
+  push:
+    tags:
+      - "*.*.*"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  windows:
+    runs-on: windows-latest
+    env:
+      PROJECT: src/Sdfw.Ui/Sdfw.Ui.csproj
+      RUNTIME: win-x64
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Compute version
+        id: ver
+        shell: pwsh
+        run: |
+          $refType = "${{ github.ref_type }}"   # 'tag' | 'branch'
+          $refName = "${{ github.ref_name }}"
+
+          if ($refType -eq 'tag' -and $refName.StartsWith('v')) {
+            $appVersion = $refName.Substring(1)
+          }
+          else {
+            $appVersion = "0.0.0-ci.${{ github.run_number }}"
+          }
+
+          "version=$appVersion" | Out-File -FilePath $env:GITHUB_OUTPUT -Append -Encoding utf8
+
+      - name: Restore
+        shell: pwsh
+        run: dotnet restore "$env:PROJECT"
+
+      - name: Publish (self-contained)
+        shell: pwsh
+        run: |
+          New-Item -ItemType Directory -Force -Path "dist" | Out-Null
+
+          $publishDir = "dist\\publish"
+          if (Test-Path $publishDir) { Remove-Item $publishDir -Recurse -Force }
+
+          dotnet publish "$env:PROJECT" -c Release -r "$env:RUNTIME" -o $publishDir `
+            /p:Version=${{ steps.ver.outputs.version }} `
+            /p:SelfContained=true
+
+      - name: Create portable ZIP
+        shell: pwsh
+        run: |
+          $zipName = "SDfW-portable-${{ steps.ver.outputs.version }}-$env:RUNTIME.zip"
+          $zipPath = "dist\\$zipName"
+          if (Test-Path $zipPath) { Remove-Item $zipPath -Force }
+          Compress-Archive -Path "dist\\publish\\*" -DestinationPath $zipPath
+
+      - name: Install NSIS
+        shell: pwsh
+        run: |
+          winget install --id NSIS.NSIS --accept-source-agreements --accept-package-agreements
+
+      - name: Build NSIS Installer
+        shell: pwsh
+        run: |
+          $env:PATH = "C:\Program Files (x86)\NSIS;$env:PATH"
+          makensis /DVERSION=${{ steps.ver.outputs.version }} /DPUBLISH_DIR=..\..\..\dist\publish build\installer\nsis\SDfW.nsi
+
+      - name: Upload workflow artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: SDfW-${{ steps.ver.outputs.version }}-${{ env.RUNTIME }}
+          path: |
+            dist/*.zip
+            dist/*Setup*.exe
+
+      - name: Upload assets to GitHub Release
+        if: startsWith(github.ref, 'refs/tags/')
+        uses: softprops/action-gh-release@v2
+        with:
+          files: |
+            dist/*.zip
+            dist/*Setup*.exe

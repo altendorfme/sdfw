@@ -1,0 +1,446 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
+    <xsd:element name="root" msdata:IsDataSet="true">
+      <xsd:complexType>
+        <xsd:choice maxOccurs="unbounded">
+          <xsd:element name="metadata">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" />
+              </xsd:sequence>
+              <xsd:attribute name="name" use="required" type="xsd:string" />
+              <xsd:attribute name="type" type="xsd:string" />
+              <xsd:attribute name="mimetype" type="xsd:string" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="assembly">
+            <xsd:complexType>
+              <xsd:attribute name="alias" type="xsd:string" />
+              <xsd:attribute name="name" type="xsd:string" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="data">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="0" />
+              <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
+              <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="resheader">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" />
+            </xsd:complexType>
+          </xsd:element>
+        </xsd:choice>
+      </xsd:complexType>
+    </xsd:element>
+  </xsd:schema>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  
+  <!-- Application Title -->
+  <data name="AppTitle" xml:space="preserve">
+    <value>Simple DNS for Windows</value>
+  </data>
+  
+  <!-- Navigation Menu -->
+  <data name="Nav_Dashboard" xml:space="preserve">
+    <value>Dashboard</value>
+  </data>
+  <data name="Nav_DnsProviders" xml:space="preserve">
+    <value>Provedores DNS</value>
+  </data>
+  <data name="Nav_NetworkAdapters" xml:space="preserve">
+    <value>Adaptadores de Rede</value>
+  </data>
+  <data name="Nav_Settings" xml:space="preserve">
+    <value>Configurações</value>
+  </data>
+  
+  <!-- Dashboard Page -->
+  <data name="Dashboard_Provider" xml:space="preserve">
+    <value>Provedor: {0}</value>
+  </data>
+  <data name="Dashboard_NoActiveProvider" xml:space="preserve">
+    <value>Nenhum provedor ativo</value>
+  </data>
+  <data name="Dashboard_Default" xml:space="preserve">
+    <value>Padrão: {0}</value>
+  </data>
+  <data name="Dashboard_Enable" xml:space="preserve">
+    <value>Ativar</value>
+  </data>
+  <data name="Dashboard_Disable" xml:space="preserve">
+    <value>Desativar</value>
+  </data>
+  <data name="Dashboard_Revert" xml:space="preserve">
+    <value>Reverter</value>
+  </data>
+  <data name="Dashboard_RevertToDefault" xml:space="preserve">
+    <value>Reverter para provedor padrão</value>
+  </data>
+  <data name="Dashboard_QueriesProcessed" xml:space="preserve">
+    <value>Consultas Processadas</value>
+  </data>
+  <data name="Dashboard_FlushDnsCache" xml:space="preserve">
+    <value>Limpar Cache DNS</value>
+  </data>
+  <data name="Dashboard_RefreshStatus" xml:space="preserve">
+    <value>Atualizar Status</value>
+  </data>
+  
+  <!-- Status Texts -->
+  <data name="Status_Inactive" xml:space="preserve">
+    <value>Inativo</value>
+  </data>
+  <data name="Status_Connected" xml:space="preserve">
+    <value>Conectado</value>
+  </data>
+  <data name="Status_ConnectedTemporary" xml:space="preserve">
+    <value>Conectado (temporário)</value>
+  </data>
+  <data name="Status_Connecting" xml:space="preserve">
+    <value>Conectando...</value>
+  </data>
+  <data name="Status_Testing" xml:space="preserve">
+    <value>Testando...</value>
+  </data>
+  <data name="Status_Error" xml:space="preserve">
+    <value>Erro</value>
+  </data>
+  
+  <!-- Network Adapters Page -->
+  <data name="Adapters_Title" xml:space="preserve">
+    <value>Adaptadores de Rede</value>
+  </data>
+  <data name="Adapters_Save" xml:space="preserve">
+    <value>Salvar</value>
+  </data>
+  <data name="Adapters_Refresh" xml:space="preserve">
+    <value>Atualizar</value>
+  </data>
+  <data name="Adapters_ShowAll" xml:space="preserve">
+    <value>Mostrar todos os adaptadores</value>
+  </data>
+  <data name="Adapters_SelectAll" xml:space="preserve">
+    <value>Selecionar todos</value>
+  </data>
+  <data name="Adapters_ClearSelection" xml:space="preserve">
+    <value>Limpar seleção</value>
+  </data>
+  <data name="Adapters_DnsAutomatic" xml:space="preserve">
+    <value>DNS: Automático</value>
+  </data>
+  <data name="Adapters_Dns" xml:space="preserve">
+    <value>DNS: {0}</value>
+  </data>
+  
+  <!-- DNS Providers Page -->
+  <data name="Providers_Title" xml:space="preserve">
+    <value>Provedores DNS</value>
+  </data>
+  <data name="Providers_Add" xml:space="preserve">
+    <value>Adicionar</value>
+  </data>
+  <data name="Providers_ResetList" xml:space="preserve">
+    <value>Resetar lista de DNS</value>
+  </data>
+  <data name="Providers_Active" xml:space="preserve">
+    <value>Ativo</value>
+  </data>
+  <data name="Providers_SetAsDefault" xml:space="preserve">
+    <value>Definir como padrão</value>
+  </data>
+  <data name="Providers_Test" xml:space="preserve">
+    <value>Testar</value>
+  </data>
+  <data name="Providers_Edit" xml:space="preserve">
+    <value>Editar</value>
+  </data>
+  <data name="Providers_Delete" xml:space="preserve">
+    <value>Excluir</value>
+  </data>
+  <data name="Providers_Connect" xml:space="preserve">
+    <value>Conectar (temporário)</value>
+  </data>
+  <data name="Providers_Disconnect" xml:space="preserve">
+    <value>Desconectar</value>
+  </data>
+
+  <data name="Providers_DefaultAlreadyActive" xml:space="preserve">
+    <value>O provedor padrão já está ativo.</value>
+  </data>
+  <data name="Providers_ConnectedTemporary" xml:space="preserve">
+    <value>Conectado temporariamente a {0}</value>
+  </data>
+  <data name="Providers_DisconnectedTemporary" xml:space="preserve">
+    <value>Conexão temporária desconectada</value>
+  </data>
+  <data name="Providers_DefaultSet" xml:space="preserve">
+    <value>{0} definido como padrão</value>
+  </data>
+  <data name="Providers_CannotDeleteDefault" xml:space="preserve">
+    <value>Não é possível excluir o provedor padrão. Defina outro provedor como padrão primeiro.</value>
+  </data>
+  <data name="Providers_Deleted" xml:space="preserve">
+    <value>Provedor {0} excluído</value>
+  </data>
+  <data name="Providers_Saved" xml:space="preserve">
+    <value>Provedor {0} salvo</value>
+  </data>
+  <data name="Providers_ResetBlockedCustomDefault" xml:space="preserve">
+    <value>O provedor padrão é customizado. Defina um provedor built-in como padrão primeiro.</value>
+  </data>
+  <data name="Providers_ResetSuccess" xml:space="preserve">
+    <value>Lista de DNS resetada para valores originais</value>
+  </data>
+  <data name="Providers_ResetFailed" xml:space="preserve">
+    <value>Falha ao resetar lista de DNS</value>
+  </data>
+  
+  <!-- Provider Dialog -->
+  <data name="ProviderDialog_Title" xml:space="preserve">
+    <value>Provedor DNS</value>
+  </data>
+  <data name="ProviderDialog_Name" xml:space="preserve">
+    <value>Nome</value>
+  </data>
+  <data name="ProviderDialog_NamePlaceholder" xml:space="preserve">
+    <value>Ex: Google DNS</value>
+  </data>
+  <data name="ProviderDialog_Description" xml:space="preserve">
+    <value>Descrição (opcional)</value>
+  </data>
+  <data name="ProviderDialog_DescriptionPlaceholder" xml:space="preserve">
+    <value>Ex: DNS público do Google</value>
+  </data>
+  <data name="ProviderDialog_Type" xml:space="preserve">
+    <value>Tipo</value>
+  </data>
+  <data name="ProviderDialog_TypeStandard" xml:space="preserve">
+    <value>DNS Padrão</value>
+  </data>
+  <data name="ProviderDialog_TypeDoH" xml:space="preserve">
+    <value>DNS-over-HTTPS (DoH)</value>
+  </data>
+  <data name="ProviderDialog_PrimaryIpv4" xml:space="preserve">
+    <value>IPv4 Primário</value>
+  </data>
+  <data name="ProviderDialog_PrimaryIpv4Placeholder" xml:space="preserve">
+    <value>Ex: 8.8.8.8</value>
+  </data>
+  <data name="ProviderDialog_SecondaryIpv4" xml:space="preserve">
+    <value>IPv4 Secundário (opcional)</value>
+  </data>
+  <data name="ProviderDialog_SecondaryIpv4Placeholder" xml:space="preserve">
+    <value>Ex: 8.8.4.4</value>
+  </data>
+  <data name="ProviderDialog_PrimaryIpv6" xml:space="preserve">
+    <value>IPv6 Primário (opcional)</value>
+  </data>
+  <data name="ProviderDialog_PrimaryIpv6Placeholder" xml:space="preserve">
+    <value>Ex: 2001:4860:4860::8888</value>
+  </data>
+  <data name="ProviderDialog_SecondaryIpv6" xml:space="preserve">
+    <value>IPv6 Secundário (opcional)</value>
+  </data>
+  <data name="ProviderDialog_SecondaryIpv6Placeholder" xml:space="preserve">
+    <value>Ex: 2001:4860:4860::8844</value>
+  </data>
+  <data name="ProviderDialog_DohUrl" xml:space="preserve">
+    <value>URL DoH</value>
+  </data>
+  <data name="ProviderDialog_DohUrlPlaceholder" xml:space="preserve">
+    <value>Ex: https://dns.google/dns-query</value>
+  </data>
+  <data name="ProviderDialog_BootstrapIps" xml:space="preserve">
+    <value>Bootstrap IPs (opcional, um por linha)</value>
+  </data>
+  <data name="ProviderDialog_BootstrapIpsPlaceholder" xml:space="preserve">
+    <value>Ex: 8.8.8.8</value>
+  </data>
+  <data name="ProviderDialog_Cancel" xml:space="preserve">
+    <value>Cancelar</value>
+  </data>
+  <data name="ProviderDialog_Save" xml:space="preserve">
+    <value>Salvar</value>
+  </data>
+
+  <data name="ProviderDialog_ValidationTitle" xml:space="preserve">
+    <value>Validação</value>
+  </data>
+  <data name="ProviderDialog_ValidationError" xml:space="preserve">
+    <value>Por favor, corrija os seguintes itens:</value>
+  </data>
+  <data name="ProviderDialog_ErrorNameRequired" xml:space="preserve">
+    <value>Nome é obrigatório</value>
+  </data>
+  <data name="ProviderDialog_ErrorPrimaryIpv4Required" xml:space="preserve">
+    <value>IPv4 Primário é obrigatório para DNS Padrão</value>
+  </data>
+  <data name="ProviderDialog_ErrorPrimaryIpv4Invalid" xml:space="preserve">
+    <value>IPv4 Primário é inválido</value>
+  </data>
+  <data name="ProviderDialog_ErrorSecondaryIpv4Invalid" xml:space="preserve">
+    <value>IPv4 Secundário é inválido</value>
+  </data>
+  <data name="ProviderDialog_ErrorPrimaryIpv6Invalid" xml:space="preserve">
+    <value>IPv6 Primário é inválido</value>
+  </data>
+  <data name="ProviderDialog_ErrorSecondaryIpv6Invalid" xml:space="preserve">
+    <value>IPv6 Secundário é inválido</value>
+  </data>
+  <data name="ProviderDialog_ErrorDohUrlRequired" xml:space="preserve">
+    <value>URL DoH é obrigatória para DNS-over-HTTPS</value>
+  </data>
+  <data name="ProviderDialog_ErrorDohUrlInvalid" xml:space="preserve">
+    <value>URL DoH deve ser uma URL HTTPS absoluta</value>
+  </data>
+  <data name="ProviderDialog_ErrorBootstrapIpInvalid" xml:space="preserve">
+    <value>Bootstrap IP inválido: {0}</value>
+  </data>
+  
+  <!-- Settings Page -->
+  <data name="Settings_Title" xml:space="preserve">
+    <value>Configurações</value>
+  </data>
+  <data name="Settings_RestoreDefaults" xml:space="preserve">
+    <value>Restaurar padrões</value>
+  </data>
+  <data name="Settings_Save" xml:space="preserve">
+    <value>Salvar</value>
+  </data>
+  <data name="Settings_Behavior" xml:space="preserve">
+    <value>Comportamento</value>
+  </data>
+  <data name="Settings_MinimizeToTray" xml:space="preserve">
+    <value>Minimizar para a bandeja do sistema</value>
+  </data>
+  <data name="Settings_CloseToTray" xml:space="preserve">
+    <value>Fechar para a bandeja do sistema</value>
+  </data>
+  <data name="Settings_StartWithWindows" xml:space="preserve">
+    <value>Iniciar com o Windows</value>
+  </data>
+  <data name="Settings_StartMinimized" xml:space="preserve">
+    <value>Iniciar minimizado</value>
+  </data>
+  <data name="Settings_Appearance" xml:space="preserve">
+    <value>Aparência</value>
+  </data>
+  <data name="Settings_Theme" xml:space="preserve">
+    <value>Tema</value>
+  </data>
+  <data name="Settings_Language" xml:space="preserve">
+    <value>Idioma</value>
+  </data>
+  <data name="Settings_CheckForUpdates" xml:space="preserve">
+    <value>Verificar atualizações automaticamente</value>
+  </data>
+  <data name="Settings_DnsProvider" xml:space="preserve">
+    <value>Provedor DNS Padrão</value>
+  </data>
+  <data name="Settings_DnsProviderDescription" xml:space="preserve">
+    <value>Selecione o provedor DNS a ser usado por padrão</value>
+  </data>
+  
+  <!-- Tray Menu -->
+  <data name="Tray_Open" xml:space="preserve">
+    <value>Abrir SDfW</value>
+  </data>
+  <data name="Tray_Status" xml:space="preserve">
+    <value>Status: {0}</value>
+  </data>
+  <data name="Tray_EnableProtection" xml:space="preserve">
+    <value>Ativar proteção DNS</value>
+  </data>
+  <data name="Tray_DisableProtection" xml:space="preserve">
+    <value>Desativar proteção DNS</value>
+  </data>
+  <data name="Tray_FlushDns" xml:space="preserve">
+    <value>Limpar cache DNS</value>
+  </data>
+  <data name="Tray_Exit" xml:space="preserve">
+    <value>Sair</value>
+  </data>
+  <data name="Tray_Tooltip" xml:space="preserve">
+    <value>Simple DNS for Windows - {0}</value>
+  </data>
+  
+  <!-- Notifications -->
+  <data name="Notification_DnsEnabled" xml:space="preserve">
+    <value>Proteção DNS ativada</value>
+  </data>
+  <data name="Notification_DnsDisabled" xml:space="preserve">
+    <value>Proteção DNS desativada</value>
+  </data>
+  <data name="Notification_RevertedToDefault" xml:space="preserve">
+    <value>Revertido para provedor padrão</value>
+  </data>
+  <data name="Notification_DnsCacheFlushed" xml:space="preserve">
+    <value>Cache DNS limpo com sucesso</value>
+  </data>
+  <data name="Notification_ConfigureDefaultFirst" xml:space="preserve">
+    <value>Configure um perfil padrão primeiro</value>
+  </data>
+  <data name="Notification_ErrorEnabling" xml:space="preserve">
+    <value>Erro ao ativar proteção DNS</value>
+  </data>
+  <data name="Notification_ErrorDisabling" xml:space="preserve">
+    <value>Erro ao desativar proteção DNS</value>
+  </data>
+  <data name="Notification_ErrorFlushingCache" xml:space="preserve">
+    <value>Erro ao limpar cache DNS</value>
+  </data>
+  
+  <!-- Dialogs -->
+  <data name="Dialog_AlreadyRunning" xml:space="preserve">
+    <value>O Simple DNS for Windows já está em execução.\n\nVerifique a bandeja do sistema.</value>
+  </data>
+  
+  <!-- Common -->
+  <data name="Common_Yes" xml:space="preserve">
+    <value>Sim</value>
+  </data>
+  <data name="Common_No" xml:space="preserve">
+    <value>Não</value>
+  </data>
+  
+  <!-- Update Notifications -->
+  <data name="Update_Available" xml:space="preserve">
+    <value>Atualização disponível</value>
+  </data>
+  <data name="Update_NewVersionAvailable" xml:space="preserve">
+    <value>Uma nova versão ({0}) está disponível!</value>
+  </data>
+  <data name="Update_CurrentVersion" xml:space="preserve">
+    <value>Versão atual: {0}</value>
+  </data>
+  <data name="Update_Download" xml:space="preserve">
+    <value>Baixar</value>
+  </data>
+  <data name="Update_Later" xml:space="preserve">
+    <value>Mais tarde</value>
+  </data>
+</root>

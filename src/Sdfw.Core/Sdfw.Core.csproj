@@ -1,0 +1,10 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Library</OutputType>
+    <RootNamespace>Sdfw.Core</RootNamespace>
+    <AssemblyName>Sdfw.Core</AssemblyName>
+    <Description>Shared core library for Simple DNS for Windows</Description>
+  </PropertyGroup>
+
+</Project>

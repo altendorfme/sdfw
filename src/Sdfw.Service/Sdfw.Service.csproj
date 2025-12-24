@@ -1,0 +1,17 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <RootNamespace>Sdfw.Service</RootNamespace>
+    <AssemblyName>Sdfw.Service</AssemblyName>
+    <Description>In-process service components for Simple DNS for Windows - DNS Proxy</Description>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.Extensions.Hosting" Version="10.0.0-*" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Sdfw.Core\Sdfw.Core.csproj" />
+  </ItemGroup>
+
+</Project>

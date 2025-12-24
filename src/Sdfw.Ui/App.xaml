@@ -1,0 +1,35 @@
+<Application
+    x:Class="Sdfw.Ui.App"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
+    xmlns:converters="clr-namespace:Sdfw.Ui.Converters"
+    DispatcherUnhandledException="OnDispatcherUnhandledException"
+    ShutdownMode="OnExplicitShutdown">
+    <Application.Resources>
+        <ResourceDictionary>
+            <!-- Value Converters -->
+            <converters:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter" />
+            <converters:InverseBoolToVisibilityConverter x:Key="InverseBoolToVisibilityConverter" />
+            <converters:InverseBoolConverter x:Key="InverseBoolConverter" />
+            <converters:BoolToYesNoConverter x:Key="BoolToYesNoConverter" />
+            <converters:ListToStringConverter x:Key="ListToStringConverter" />
+            <converters:ProviderTypeToIconConverter x:Key="ProviderTypeToIconConverter" />
+            <converters:DnsListToDisplayConverter x:Key="DnsListToDisplayConverter" />
+            <converters:LocalizedActiveToConnectTooltipConverter x:Key="LocalizedActiveToConnectTooltipConverter" />
+
+            <!--
+                IMPORTANT:
+                Some templates/styles inside merged dictionaries may reference accent keys via StaticResource.
+                StaticResource must be defined BEFORE a merged dictionary is loaded.
+                Also, property elements (MergedDictionaries) must be declared after content entries.
+            -->
+            <ResourceDictionary.MergedDictionaries>
+                <!-- Must be first so other dictionaries can resolve StaticResource keys -->
+                <ResourceDictionary Source="Resources/AccentColors.xaml" />
+                <ui:ThemesDictionary Theme="Dark" />
+                <ui:ControlsDictionary />
+            </ResourceDictionary.MergedDictionaries>
+        </ResourceDictionary>
+    </Application.Resources>
+</Application>
