@@ -3,7 +3,7 @@ name: build-and-release
 on:
   push:
     tags:
-      - "*.*.*"
+      - "v*"
   workflow_dispatch:
 
 permissions:
