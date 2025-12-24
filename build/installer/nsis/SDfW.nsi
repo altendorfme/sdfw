@@ -4,6 +4,7 @@
 !include "MUI2.nsh"
 !include "FileFunc.nsh"
 !include "x64.nsh"
+!include "WordFunc.nsh"
 
 ; --------------------------------
 ; General Configuration
@@ -16,6 +17,11 @@
   !define PUBLISH_DIR "..\..\..\dist\publish"
 !endif
 
+!searchparse "${VERSION}" "" VERSION_NUMERIC "-"
+!ifndef VERSION_NUMERIC
+  !define VERSION_NUMERIC "${VERSION}"
+!endif
+
 Name "SDfW"
 OutFile "..\..\..\dist\SDfW-${VERSION}-win-x64-Setup.exe"
 InstallDir "$PROGRAMFILES64\SDfW"
@@ -26,7 +32,7 @@ Unicode True
 ; --------------------------------
 ; Version Information
 ; --------------------------------
-VIProductVersion "${VERSION}.0"
+VIProductVersion "${VERSION_NUMERIC}.0"
 VIAddVersionKey "ProductName" "SDfW"
 VIAddVersionKey "CompanyName" "SDfW"
 VIAddVersionKey "LegalCopyright" "SDfW"
