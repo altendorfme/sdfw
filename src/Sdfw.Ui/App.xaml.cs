@@ -290,27 +290,20 @@ public partial class App : Application
     {
         Log.Information("SDfW UI shutting down...");
 
-        // Disable DNS protection before shutting down to restore original DNS settings
+        // Perform unified DNS shutdown: revert, flush, and restore original DNS
         try
         {
             var ipcClient = Services?.GetService<IIpcClientService>();
             if (ipcClient is not null)
             {
-                Log.Information("Disabling DNS protection before shutdown...");
-                var response = await ipcClient.DisableAsync(restoreOriginalDns: true);
-                if (response?.Success == true)
-                {
-                    Log.Information("DNS protection disabled successfully");
-                }
-                else
-                {
-                    Log.Warning("Failed to disable DNS protection: {Error}", response?.ErrorMessage);
-                }
+                Log.Information("Performing unified DNS shutdown...");
+                await ipcClient.ShutdownDnsAsync();
+                Log.Information("DNS shutdown completed successfully");
             }
         }
         catch (Exception ex)
         {
-            Log.Warning(ex, "Error disabling DNS protection during shutdown");
+            Log.Warning(ex, "Error during DNS shutdown");
         }
 
         _trayIcon?.Dispose();

@@ -74,6 +74,12 @@ public interface IIpcClientService
     Task<FlushDnsCacheResponse?> FlushDnsCacheAsync(CancellationToken cancellationToken = default);
 
     /// <summary>
+    /// Performs a unified shutdown: revert to default (if temporary), flush DNS cache, and disable DNS protection.
+    /// This standardized flow ensures consistent cleanup across all shutdown scenarios.
+    /// </summary>
+    Task ShutdownDnsAsync(CancellationToken cancellationToken = default);
+
+    /// <summary>
     /// Event raised when a notification is received from the service.
     /// </summary>
     event EventHandler<IpcMessage>? NotificationReceived;

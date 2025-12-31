@@ -1,7 +1,6 @@
 using System.Net;
 using System.Text;
 using System.Windows;
-using System.Windows.Controls;
 using Sdfw.Core.Models;
 using Wpf.Ui.Controls;
 using Sdfw.Ui.Localization;
@@ -59,49 +58,22 @@ public partial class ProviderDialog : FluentWindow
     {
         NameTextBox.Text = string.Empty;
         DescriptionTextBox.Text = string.Empty;
-        TypeComboBox.SelectedIndex = 0;
+        DohUrlTextBox.Text = string.Empty;
         PrimaryIpv4TextBox.Text = string.Empty;
         SecondaryIpv4TextBox.Text = string.Empty;
         PrimaryIpv6TextBox.Text = string.Empty;
         SecondaryIpv6TextBox.Text = string.Empty;
-        DohUrlTextBox.Text = string.Empty;
-        BootstrapIpsTextBox.Text = string.Empty;
-        UpdateTypeVisibility();
     }
 
     private void PopulateFields(DnsProvider provider)
     {
         NameTextBox.Text = provider.Name;
         DescriptionTextBox.Text = provider.Description ?? string.Empty;
-        
-        // Set type
-        TypeComboBox.SelectedIndex = provider.Type == DnsProviderType.DoH ? 1 : 0;
-
-        // Standard DNS fields
+        DohUrlTextBox.Text = provider.DohUrl ?? string.Empty;
         PrimaryIpv4TextBox.Text = provider.PrimaryIpv4 ?? string.Empty;
         SecondaryIpv4TextBox.Text = provider.SecondaryIpv4 ?? string.Empty;
         PrimaryIpv6TextBox.Text = provider.PrimaryIpv6 ?? string.Empty;
         SecondaryIpv6TextBox.Text = provider.SecondaryIpv6 ?? string.Empty;
-
-        // DoH fields
-        DohUrlTextBox.Text = provider.DohUrl ?? string.Empty;
-        BootstrapIpsTextBox.Text = string.Join(Environment.NewLine, provider.BootstrapIps);
-
-        UpdateTypeVisibility();
-    }
-
-    private void OnTypeChanged(object sender, SelectionChangedEventArgs e)
-    {
-        UpdateTypeVisibility();
-    }
-
-    private void UpdateTypeVisibility()
-    {
-        if (StandardDnsPanel is null || DohPanel is null) return;
-
-        var isDoH = TypeComboBox.SelectedIndex == 1;
-        StandardDnsPanel.Visibility = isDoH ? Visibility.Collapsed : Visibility.Visible;
-        DohPanel.Visibility = isDoH ? Visibility.Visible : Visibility.Collapsed;
     }
 
     private void OnSaveClick(object sender, RoutedEventArgs e)
@@ -114,7 +86,6 @@ public partial class ProviderDialog : FluentWindow
         }
         else
         {
-            // Show validation error
             System.Windows.MessageBox.Show(
                 errorMessage ?? Loc.Get("ProviderDialog_ValidationError"),
                 Loc.Get("ProviderDialog_ValidationTitle"),
@@ -131,6 +102,7 @@ public partial class ProviderDialog : FluentWindow
 
     /// <summary>
     /// Validates and returns the provider data.
+    /// DoH is primary when DoH URL is filled; otherwise Standard DNS is used.
     /// </summary>
     public bool TryGetProvider(out DnsProvider? provider, out string? validationError)
     {
@@ -139,35 +111,32 @@ public partial class ProviderDialog : FluentWindow
 
         var errors = new List<string>();
 
-        // Validate name
         if (string.IsNullOrWhiteSpace(NameTextBox.Text))
         {
             errors.Add(Loc.Get("ProviderDialog_ErrorNameRequired"));
         }
 
-        var isDoH = TypeComboBox.SelectedIndex == 1;
+        var hasDoHUrl = !string.IsNullOrWhiteSpace(DohUrlTextBox.Text);
+        var hasPrimaryIpv4 = !string.IsNullOrWhiteSpace(PrimaryIpv4TextBox.Text);
 
-        if (isDoH)
+        if (hasDoHUrl)
         {
-            // Validate DoH URL
-            if (string.IsNullOrWhiteSpace(DohUrlTextBox.Text))
-            {
-                errors.Add(Loc.Get("ProviderDialog_ErrorDohUrlRequired"));
-            }
-            else if (!Uri.TryCreate(DohUrlTextBox.Text.Trim(), UriKind.Absolute, out var dohUri) ||
-                     !string.Equals(dohUri.Scheme, "https", StringComparison.OrdinalIgnoreCase))
+            if (!Uri.TryCreate(DohUrlTextBox.Text.Trim(), UriKind.Absolute, out var dohUri) ||
+                !string.Equals(dohUri.Scheme, "https", StringComparison.OrdinalIgnoreCase))
             {
                 errors.Add(Loc.Get("ProviderDialog_ErrorDohUrlInvalid"));
             }
         }
-        else
+
+        if (!hasDoHUrl && !hasPrimaryIpv4)
         {
-            // Validate at least primary IPv4
-            if (string.IsNullOrWhiteSpace(PrimaryIpv4TextBox.Text))
-            {
-                errors.Add(Loc.Get("ProviderDialog_ErrorPrimaryIpv4Required"));
-            }
-            else if (!IPAddress.TryParse(PrimaryIpv4TextBox.Text.Trim(), out var ip) || ip.AddressFamily != System.Net.Sockets.AddressFamily.InterNetwork)
+            errors.Add(Loc.Get("ProviderDialog_ErrorPrimaryIpv4Required"));
+        }
+
+        if (hasPrimaryIpv4)
+        {
+            if (!IPAddress.TryParse(PrimaryIpv4TextBox.Text.Trim(), out var ip) ||
+                ip.AddressFamily != System.Net.Sockets.AddressFamily.InterNetwork)
             {
                 errors.Add(Loc.Get("ProviderDialog_ErrorPrimaryIpv4Invalid"));
             }
@@ -198,28 +167,6 @@ public partial class ProviderDialog : FluentWindow
         ValidateOptionalIp(PrimaryIpv6TextBox.Text, ipv6: true, "ProviderDialog_ErrorPrimaryIpv6Invalid");
         ValidateOptionalIp(SecondaryIpv6TextBox.Text, ipv6: true, "ProviderDialog_ErrorSecondaryIpv6Invalid");
 
-        // Validate bootstrap IPs (optional)
-        var bootstrapIps = new List<string>();
-        if (!string.IsNullOrWhiteSpace(BootstrapIpsTextBox.Text))
-        {
-            var lines = BootstrapIpsTextBox.Text
-                .Split(new[] { '\r', '\n' }, StringSplitOptions.RemoveEmptyEntries)
-                .Select(l => l.Trim())
-                .Where(l => !string.IsNullOrWhiteSpace(l));
-
-            foreach (var line in lines)
-            {
-                if (!IPAddress.TryParse(line, out _))
-                {
-                    errors.Add(Loc.GetFormat("ProviderDialog_ErrorBootstrapIpInvalid", line));
-                }
-                else
-                {
-                    bootstrapIps.Add(line);
-                }
-            }
-        }
-
         if (errors.Count > 0)
         {
             var sb = new StringBuilder();
@@ -232,18 +179,20 @@ public partial class ProviderDialog : FluentWindow
             return false;
         }
 
+        var providerType = hasDoHUrl ? DnsProviderType.DoH : DnsProviderType.Standard;
+
         provider = new DnsProvider
         {
             Id = _provider?.Id ?? Guid.NewGuid(),
             Name = NameTextBox.Text.Trim(),
             Description = string.IsNullOrWhiteSpace(DescriptionTextBox.Text) ? null : DescriptionTextBox.Text.Trim(),
-            Type = isDoH ? DnsProviderType.DoH : DnsProviderType.Standard,
+            Type = providerType,
             PrimaryIpv4 = string.IsNullOrWhiteSpace(PrimaryIpv4TextBox.Text) ? null : PrimaryIpv4TextBox.Text.Trim(),
             SecondaryIpv4 = string.IsNullOrWhiteSpace(SecondaryIpv4TextBox.Text) ? null : SecondaryIpv4TextBox.Text.Trim(),
             PrimaryIpv6 = string.IsNullOrWhiteSpace(PrimaryIpv6TextBox.Text) ? null : PrimaryIpv6TextBox.Text.Trim(),
             SecondaryIpv6 = string.IsNullOrWhiteSpace(SecondaryIpv6TextBox.Text) ? null : SecondaryIpv6TextBox.Text.Trim(),
             DohUrl = string.IsNullOrWhiteSpace(DohUrlTextBox.Text) ? null : DohUrlTextBox.Text.Trim(),
-            BootstrapIps = bootstrapIps,
+            BootstrapIps = [], // Bootstrap IPs removed
             IsBuiltIn = false
         };
 

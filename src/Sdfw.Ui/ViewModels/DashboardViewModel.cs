@@ -1,5 +1,4 @@
 using System.Windows.Media;
-using System.Windows.Threading;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Microsoft.Extensions.Logging;
@@ -14,7 +13,6 @@ public partial class DashboardViewModel : ObservableObject
     private readonly IIpcClientService _ipcClient;
     private readonly ITrayIconService _trayIconService;
     private readonly ILogger<DashboardViewModel> _logger;
-    private DispatcherTimer? _refreshTimer;
 
     [ObservableProperty]
     private ConnectionStatus _status = ConnectionStatus.Inactive;
@@ -36,9 +34,6 @@ public partial class DashboardViewModel : ObservableObject
 
     [ObservableProperty]
     private bool _isTemporaryConnection;
-
-    [ObservableProperty]
-    private long _queriesHandled;
 
     [ObservableProperty]
     private bool _isLoading;
@@ -67,40 +62,6 @@ public partial class DashboardViewModel : ObservableObject
         UpdateStatusDisplay();
     }
 
-    public void StartRealTimeUpdates()
-    {
-        if (_refreshTimer is not null) return;
-
-        _refreshTimer = new DispatcherTimer
-        {
-            Interval = TimeSpan.FromSeconds(2)
-        };
-        _refreshTimer.Tick += async (s, e) => await UpdateQueriesAsync();
-        _refreshTimer.Start();
-    }
-
-    public void StopRealTimeUpdates()
-    {
-        _refreshTimer?.Stop();
-        _refreshTimer = null;
-    }
-
-    private async Task UpdateQueriesAsync()
-    {
-        try
-        {
-            var statusResponse = await _ipcClient.GetStatusAsync();
-            if (statusResponse is not null)
-            {
-                QueriesHandled = statusResponse.QueriesHandled;
-            }
-        }
-        catch (Exception ex)
-        {
-            _logger.LogDebug(ex, "Error updating queries count");
-        }
-    }
-
     public async Task LoadAsync()
     {
         IsLoading = true;
@@ -113,7 +74,6 @@ public partial class DashboardViewModel : ObservableObject
                 Status = statusResponse.Status;
                 ActiveProviderName = statusResponse.ActiveProviderName;
                 IsTemporaryConnection = statusResponse.IsTemporaryConnection;
-                QueriesHandled = statusResponse.QueriesHandled;
 
                 UpdateStatusDisplay();
             }
@@ -183,13 +143,9 @@ public partial class DashboardViewModel : ObservableObject
 
         try
         {
-            var response = await _ipcClient.DisableAsync(restoreOriginalDns: true);
-
-            if (response?.Success == true)
-            {
-                await LoadAsync();
-                _trayIconService.ShowNotification("SDfW", Loc.Get("Notification_DnsDisabled"));
-            }
+            await _ipcClient.ShutdownDnsAsync();
+            await LoadAsync();
+            _trayIconService.ShowNotification("SDfW", Loc.Get("Notification_DnsDisabled"));
         }
         catch (Exception ex)
         {

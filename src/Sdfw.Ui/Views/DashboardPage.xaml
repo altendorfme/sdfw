@@ -15,7 +15,6 @@
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto" />
             <RowDefinition Height="Auto" />
-            <RowDefinition Height="Auto" />
             <RowDefinition Height="*" />
         </Grid.RowDefinitions>
 
@@ -87,38 +86,11 @@
             </Grid>
         </ui:Card>
 
-        <!-- Processed Queries Card -->
-        <ui:Card Grid.Row="1" Margin="0,0,0,16">
-            <Grid>
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="Auto" />
-                    <ColumnDefinition Width="*" />
-                </Grid.ColumnDefinitions>
-
-                <ui:SymbolIcon
-                    Grid.Column="0"
-                    Symbol="DataUsage24"
-                    FontSize="32"
-                    Margin="0,0,16,0"
-                    Foreground="White" />
-
-                <StackPanel Grid.Column="1" VerticalAlignment="Center">
-                    <TextBlock
-                        Text="{loc:Localize Dashboard_QueriesProcessed}"
-                        FontSize="14"
-                        Foreground="{DynamicResource TextFillColorSecondaryBrush}" />
-                    <TextBlock
-                        Text="{Binding QueriesHandled, StringFormat='{}{0:N0}'}"
-                        FontSize="28"
-                        FontWeight="SemiBold" />
-                </StackPanel>
-            </Grid>
-        </ui:Card>
-
         <!-- Quick Actions -->
-        <ui:Card Grid.Row="2">
+        <ui:Card Grid.Row="1">
             <Grid>
                 <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" />
                     <ColumnDefinition Width="*" />
                     <ColumnDefinition Width="*" />
                 </Grid.ColumnDefinitions>
@@ -137,13 +109,22 @@
                     Icon="{ui:SymbolIcon ArrowSync24}"
                     Command="{Binding RefreshCommand}"
                     HorizontalAlignment="Stretch"
-                    Margin="8,0,0,0" />
+                    Margin="8,0,8,0" />
+
+                <ui:Button
+                    Grid.Column="2"
+                    Content="DNS Check"
+                    Icon="{ui:SymbolIcon Globe24}"
+                    Click="OnDnsCheckClick"
+                    HorizontalAlignment="Stretch"
+                    Margin="8,0,0,0"
+                    ToolTip="https://dnscheck.tools/" />
             </Grid>
         </ui:Card>
 
         <!-- Loading Overlay -->
         <ui:ProgressRing
-            Grid.RowSpan="4"
+            Grid.RowSpan="3"
             IsIndeterminate="True"
             Visibility="{Binding IsLoading, Converter={StaticResource BoolToVisibilityConverter}}" />
     </Grid>

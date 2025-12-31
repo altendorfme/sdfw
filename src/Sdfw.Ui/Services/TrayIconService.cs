@@ -210,13 +210,7 @@ public sealed class TrayIconService : ITrayIconService
             var ipcClient = App.Services.GetService(typeof(IIpcClientService)) as IIpcClientService;
             if (ipcClient is not null)
             {
-                try
-                {
-                    await ipcClient.DisableAsync(restoreOriginalDns: true);
-                }
-                catch (Exception)
-                {
-                }
+                await ipcClient.ShutdownDnsAsync();
 
                 try
                 {

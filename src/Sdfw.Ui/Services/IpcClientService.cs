@@ -159,6 +159,24 @@ public sealed class IpcClientService : IIpcClientService, IDisposable
             cancellationToken);
     }
 
+    public async Task ShutdownDnsAsync(CancellationToken cancellationToken = default)
+    {
+        try
+        {
+            var status = await GetStatusAsync(cancellationToken);
+            if (status?.IsTemporaryConnection == true)
+            {
+                await RevertToDefaultAsync(cancellationToken);
+            }
+            await FlushDnsCacheAsync(cancellationToken);
+            await DisableAsync(restoreOriginalDns: true, cancellationToken);
+        }
+        catch
+        {
+            // Best effort cleanup
+        }
+    }
+
     private async Task<TResponse?> SendRequestAsync<TRequest, TResponse>(TRequest request, CancellationToken cancellationToken)
         where TRequest : IpcMessage
         where TResponse : IpcMessage

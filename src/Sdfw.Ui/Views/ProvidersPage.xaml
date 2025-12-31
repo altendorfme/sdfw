@@ -16,6 +16,7 @@
         <converters:BoolToAppearanceConverter x:Key="BoolToAppearanceConverter" />
         <converters:TemporaryActiveToSymbolConverter x:Key="TemporaryActiveToSymbolConverter" />
         <converters:LocalizedTemporaryActiveToConnectTooltipConverter x:Key="LocalizedTemporaryActiveToConnectTooltipConverter" />
+        <converters:NullOrEmptyToVisibilityConverter x:Key="NullOrEmptyToVisibilityConverter" />
         <SolidColorBrush x:Key="DefaultProviderBackgroundBrush" Color="#1A4CAF50" />
     </Page.Resources>
 
@@ -102,11 +103,29 @@
                                 <TextBlock
                                     Text="{Binding Description}"
                                     Foreground="{DynamicResource TextFillColorSecondaryBrush}"
-                                    FontSize="12" />
+                                    FontSize="12"
+                                    Visibility="{Binding Description, Converter={StaticResource NullOrEmptyToVisibilityConverter}}" />
+                                <!-- DoH URL -->
                                 <TextBlock
-                                    Text="{Binding Type}"
                                     Foreground="{DynamicResource TextFillColorTertiaryBrush}"
-                                    FontSize="11" />
+                                    FontSize="11"
+                                    Visibility="{Binding DohUrl, Converter={StaticResource NullOrEmptyToVisibilityConverter}}">
+                                    <Run Text="DoH: " /><Run Text="{Binding DohUrl, Mode=OneWay}" />
+                                </TextBlock>
+                                <!-- IPv4 Addresses -->
+                                <TextBlock
+                                    Foreground="{DynamicResource TextFillColorTertiaryBrush}"
+                                    FontSize="11"
+                                    Visibility="{Binding PrimaryIpv4, Converter={StaticResource NullOrEmptyToVisibilityConverter}}">
+                                    <Run Text="IPv4: " /><Run Text="{Binding PrimaryIpv4, Mode=OneWay}" /><Run Text="{Binding SecondaryIpv4, Mode=OneWay, StringFormat=' / {0}'}" />
+                                </TextBlock>
+                                <!-- IPv6 Addresses -->
+                                <TextBlock
+                                    Foreground="{DynamicResource TextFillColorTertiaryBrush}"
+                                    FontSize="11"
+                                    Visibility="{Binding PrimaryIpv6, Converter={StaticResource NullOrEmptyToVisibilityConverter}}">
+                                    <Run Text="IPv6: " /><Run Text="{Binding PrimaryIpv6, Mode=OneWay}" /><Run Text="{Binding SecondaryIpv6, Mode=OneWay, StringFormat=' / {0}'}" />
+                                </TextBlock>
                             </StackPanel>
 
                             <!-- Actions -->

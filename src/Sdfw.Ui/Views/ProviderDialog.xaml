@@ -50,59 +50,36 @@
                     PlaceholderText="{loc:Localize ProviderDialog_DescriptionPlaceholder}"
                     Margin="0,0,0,16" />
 
-                <!-- Type -->
-                <TextBlock Text="{loc:Localize ProviderDialog_Type}" Margin="0,0,0,4" />
-                <ComboBox
-                    x:Name="TypeComboBox"
-                    SelectedIndex="0"
-                    SelectionChanged="OnTypeChanged"
-                    Margin="0,0,0,16">
-                    <ComboBoxItem Content="{loc:Localize ProviderDialog_TypeStandard}" Tag="Standard" />
-                    <ComboBoxItem Content="{loc:Localize ProviderDialog_TypeDoH}" Tag="DoH" />
-                </ComboBox>
+                <!-- DoH URL (Primary when filled) -->
+                <TextBlock Text="{loc:Localize ProviderDialog_DohUrl}" Margin="0,0,0,4" />
+                <ui:TextBox
+                    x:Name="DohUrlTextBox"
+                    PlaceholderText="{loc:Localize ProviderDialog_DohUrlPlaceholder}"
+                    Margin="0,0,0,16" />
 
                 <!-- Standard DNS Fields -->
-                <StackPanel x:Name="StandardDnsPanel">
-                    <TextBlock Text="{loc:Localize ProviderDialog_PrimaryIpv4}" Margin="0,0,0,4" />
-                    <ui:TextBox
-                        x:Name="PrimaryIpv4TextBox"
-                        PlaceholderText="{loc:Localize ProviderDialog_PrimaryIpv4Placeholder}"
-                        Margin="0,0,0,8" />
+                <TextBlock Text="{loc:Localize ProviderDialog_PrimaryIpv4}" Margin="0,0,0,4" />
+                <ui:TextBox
+                    x:Name="PrimaryIpv4TextBox"
+                    PlaceholderText="{loc:Localize ProviderDialog_PrimaryIpv4Placeholder}"
+                    Margin="0,0,0,8" />
 
-                    <TextBlock Text="{loc:Localize ProviderDialog_SecondaryIpv4}" Margin="0,0,0,4" />
-                    <ui:TextBox
-                        x:Name="SecondaryIpv4TextBox"
-                        PlaceholderText="{loc:Localize ProviderDialog_SecondaryIpv4Placeholder}"
-                        Margin="0,0,0,8" />
+                <TextBlock Text="{loc:Localize ProviderDialog_SecondaryIpv4}" Margin="0,0,0,4" />
+                <ui:TextBox
+                    x:Name="SecondaryIpv4TextBox"
+                    PlaceholderText="{loc:Localize ProviderDialog_SecondaryIpv4Placeholder}"
+                    Margin="0,0,0,8" />
 
-                    <TextBlock Text="{loc:Localize ProviderDialog_PrimaryIpv6}" Margin="0,0,0,4" />
-                    <ui:TextBox
-                        x:Name="PrimaryIpv6TextBox"
-                        PlaceholderText="{loc:Localize ProviderDialog_PrimaryIpv6Placeholder}"
-                        Margin="0,0,0,8" />
+                <TextBlock Text="{loc:Localize ProviderDialog_PrimaryIpv6}" Margin="0,0,0,4" />
+                <ui:TextBox
+                    x:Name="PrimaryIpv6TextBox"
+                    PlaceholderText="{loc:Localize ProviderDialog_PrimaryIpv6Placeholder}"
+                    Margin="0,0,0,8" />
 
-                    <TextBlock Text="{loc:Localize ProviderDialog_SecondaryIpv6}" Margin="0,0,0,4" />
-                    <ui:TextBox
-                        x:Name="SecondaryIpv6TextBox"
-                        PlaceholderText="{loc:Localize ProviderDialog_SecondaryIpv6Placeholder}" />
-                </StackPanel>
-
-                <!-- DoH Fields -->
-                <StackPanel x:Name="DohPanel" Visibility="Collapsed">
-                    <TextBlock Text="{loc:Localize ProviderDialog_DohUrl}" Margin="0,0,0,4" />
-                    <ui:TextBox
-                        x:Name="DohUrlTextBox"
-                        PlaceholderText="{loc:Localize ProviderDialog_DohUrlPlaceholder}"
-                        Margin="0,0,0,8" />
-
-                    <TextBlock Text="{loc:Localize ProviderDialog_BootstrapIps}" Margin="0,0,0,4" />
-                    <ui:TextBox
-                        x:Name="BootstrapIpsTextBox"
-                        PlaceholderText="{loc:Localize ProviderDialog_BootstrapIpsPlaceholder}"
-                        AcceptsReturn="True"
-                        TextWrapping="Wrap"
-                        MinHeight="60" />
-                </StackPanel>
+                <TextBlock Text="{loc:Localize ProviderDialog_SecondaryIpv6}" Margin="0,0,0,4" />
+                <ui:TextBox
+                    x:Name="SecondaryIpv6TextBox"
+                    PlaceholderText="{loc:Localize ProviderDialog_SecondaryIpv6Placeholder}" />
             </StackPanel>
         </ScrollViewer>
 

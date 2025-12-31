@@ -34,6 +34,23 @@ public class InverseBoolToVisibilityConverter : IValueConverter
     }
 }
 
+public class NullOrEmptyToVisibilityConverter : IValueConverter
+{
+    public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+    {
+        if (value is string str)
+        {
+            return string.IsNullOrWhiteSpace(str) ? Visibility.Collapsed : Visibility.Visible;
+        }
+        return value is null ? Visibility.Collapsed : Visibility.Visible;
+    }
+
+    public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+    {
+        throw new NotImplementedException();
+    }
+}
+
 public class InverseBoolConverter : IValueConverter
 {
     public object Convert(object value, Type targetType, object parameter, CultureInfo culture)

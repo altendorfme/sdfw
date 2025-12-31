@@ -15,14 +15,12 @@ public sealed class DnsProxyService : IDnsProxyService, IDisposable
     private const int DnsTcpMaxSize = 65535;
     private const int DefaultTimeoutMs = 5000;
 
+    private static readonly string[] BootstrapDnsServers = ["1.1.1.1", "8.8.8.8", "9.9.9.9"];
+
     private readonly ILogger<DnsProxyService> _logger;
     private readonly ISettingsService _settingsService;
-    private readonly HttpClient _httpClient;
-
-    private readonly object _dohClientLock = new();
-    private HttpClient? _dohClient;
-    private Guid? _dohClientProviderId;
-    private string? _dohClientBootstrapKey;
+    private HttpClient _httpClient = null!;
+    private SocketsHttpHandler _httpHandler = null!;
 
     private UdpClient? _udpClientV4;
     private UdpClient? _udpClientV6;
@@ -43,28 +41,236 @@ public sealed class DnsProxyService : IDnsProxyService, IDisposable
     private long _queriesHandled;
     private DateTimeOffset? _lastHealthCheck;
 
+    private readonly Dictionary<string, IPAddress[]> _resolvedHosts = new(StringComparer.OrdinalIgnoreCase);
+    private readonly SemaphoreSlim _resolveLock = new(1, 1);
+
     public DnsProxyService(ILogger<DnsProxyService> logger, ISettingsService settingsService)
     {
         _logger = logger;
         _settingsService = settingsService;
 
-        var handler = new SocketsHttpHandler
+        InitializeHttpClient();
+    }
+
+    private void InitializeHttpClient()
+    {
+        _httpHandler = new SocketsHttpHandler
         {
             PooledConnectionLifetime = TimeSpan.FromMinutes(10),
             ConnectTimeout = TimeSpan.FromSeconds(10),
             SslOptions = new SslClientAuthenticationOptions
             {
                 EnabledSslProtocols = SslProtocols.Tls12 | SslProtocols.Tls13
-            }
+            },
+            ConnectCallback = BootstrapConnectCallback
         };
 
-        _httpClient = new HttpClient(handler)
+        _httpClient = new HttpClient(_httpHandler)
         {
             Timeout = TimeSpan.FromSeconds(10)
         };
 
         _httpClient.DefaultRequestHeaders.Accept.Add(
             new System.Net.Http.Headers.MediaTypeWithQualityHeaderValue("application/dns-message"));
+    }
+
+    private async ValueTask<Stream> BootstrapConnectCallback(
+        SocketsHttpConnectionContext context,
+        CancellationToken cancellationToken)
+    {
+        var host = context.DnsEndPoint.Host;
+        var port = context.DnsEndPoint.Port;
+
+        IPAddress[] addresses;
+        if (IPAddress.TryParse(host, out var directIp))
+        {
+            addresses = [directIp];
+        }
+        else
+        {
+            addresses = await ResolveHostnameAsync(host, cancellationToken);
+        }
+
+        if (addresses.Length == 0)
+        {
+            throw new SocketException((int)SocketError.HostNotFound);
+        }
+
+        Socket? socket = null;
+        Exception? lastException = null;
+
+        foreach (var address in addresses)
+        {
+            try
+            {
+                socket = new Socket(address.AddressFamily, SocketType.Stream, ProtocolType.Tcp)
+                {
+                    NoDelay = true
+                };
+
+                await socket.ConnectAsync(new IPEndPoint(address, port), cancellationToken);
+                return new NetworkStream(socket, ownsSocket: true);
+            }
+            catch (Exception ex)
+            {
+                lastException = ex;
+                socket?.Dispose();
+                socket = null;
+            }
+        }
+
+        throw lastException ?? new SocketException((int)SocketError.HostNotFound);
+    }
+
+    private async Task<IPAddress[]> ResolveHostnameAsync(string hostname, CancellationToken cancellationToken)
+    {
+        await _resolveLock.WaitAsync(cancellationToken);
+        try
+        {
+            if (_resolvedHosts.TryGetValue(hostname, out var cached))
+            {
+                _logger.LogDebug("Using cached IP for {Hostname}: {IPs}", hostname, string.Join(", ", cached.Select(ip => ip.ToString())));
+                return cached;
+            }
+
+            _logger.LogDebug("Resolving {Hostname} using bootstrap DNS servers...", hostname);
+            var query = BuildDnsQuery(hostname, 1);
+
+            foreach (var server in BootstrapDnsServers)
+            {
+                try
+                {
+                    var response = await SendBootstrapQueryAsync(server, query, cancellationToken);
+                    if (response is not null)
+                    {
+                        var addresses = ParseDnsResponse(response);
+                        if (addresses.Length > 0)
+                        {
+                            _resolvedHosts[hostname] = addresses;
+                            _logger.LogInformation("Resolved {Hostname} to {IPs} using bootstrap DNS {Server}",
+                                hostname, string.Join(", ", addresses.Select(ip => ip.ToString())), server);
+                            return addresses;
+                        }
+                    }
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogDebug(ex, "Bootstrap DNS {Server} failed to resolve {Hostname}", server, hostname);
+                }
+            }
+
+            try
+            {
+                _logger.LogDebug("Bootstrap DNS failed, trying system DNS for {Hostname}...", hostname);
+                var systemAddresses = await Dns.GetHostAddressesAsync(hostname, cancellationToken);
+                if (systemAddresses.Length > 0)
+                {
+                    _resolvedHosts[hostname] = systemAddresses;
+                    _logger.LogInformation("Resolved {Hostname} to {IPs} using system DNS",
+                        hostname, string.Join(", ", systemAddresses.Select(ip => ip.ToString())));
+                    return systemAddresses;
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogDebug(ex, "System DNS also failed to resolve {Hostname}", hostname);
+            }
+
+            _logger.LogError("Failed to resolve {Hostname} using any DNS method", hostname);
+            return [];
+        }
+        finally
+        {
+            _resolveLock.Release();
+        }
+    }
+
+    private async Task<byte[]?> SendBootstrapQueryAsync(string server, byte[] query, CancellationToken cancellationToken)
+    {
+        using var client = new UdpClient();
+        var endpoint = new IPEndPoint(IPAddress.Parse(server), DnsPort);
+
+        client.Client.ReceiveTimeout = 2000;
+
+        await client.SendAsync(query, query.Length, endpoint);
+
+        using var cts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
+        cts.CancelAfter(2000);
+
+        var result = await client.ReceiveAsync(cts.Token);
+        return result.Buffer;
+    }
+
+    private static IPAddress[] ParseDnsResponse(byte[] response)
+    {
+        var addresses = new List<IPAddress>();
+
+        if (response.Length < 12)
+            return [];
+
+        var rcode = response[3] & 0x0F;
+        if (rcode != 0)
+            return [];
+
+        var answerCount = (response[6] << 8) | response[7];
+        if (answerCount == 0)
+            return [];
+
+        var offset = 12;
+
+        while (offset < response.Length && response[offset] != 0)
+        {
+            if ((response[offset] & 0xC0) == 0xC0)
+            {
+                offset += 2;
+                break;
+            }
+            offset += response[offset] + 1;
+        }
+        if (response[offset] == 0)
+            offset++; 
+
+        offset += 4;
+
+        for (var i = 0; i < answerCount && offset < response.Length; i++)
+        {
+            if ((response[offset] & 0xC0) == 0xC0)
+            {
+                offset += 2;
+            }
+            else
+            {
+                while (offset < response.Length && response[offset] != 0)
+                    offset += response[offset] + 1;
+                offset++;
+            }
+
+            if (offset + 10 > response.Length)
+                break;
+
+            var type = (response[offset] << 8) | response[offset + 1];
+            offset += 2;
+            offset += 2;
+            offset += 4;
+            var rdLength = (response[offset] << 8) | response[offset + 1];
+            offset += 2;
+
+            if (type == 1 && rdLength == 4 && offset + 4 <= response.Length)
+            {
+                var ip = new IPAddress(new ReadOnlySpan<byte>(response, offset, 4));
+                addresses.Add(ip);
+            }
+
+            offset += rdLength;
+        }
+
+        return [.. addresses];
+    }
+
+    public void ClearResolvedHostsCache()
+    {
+        _resolvedHosts.Clear();
+        _logger.LogDebug("Cleared resolved hosts cache");
     }
 
     public ConnectionStatus Status => _status;
@@ -459,92 +665,10 @@ public sealed class DnsProxyService : IDnsProxyService, IDisposable
         using var content = new ByteArrayContent(query);
         content.Headers.ContentType = new System.Net.Http.Headers.MediaTypeHeaderValue("application/dns-message");
 
-        var client = GetDohHttpClient(provider);
-        using var response = await client.PostAsync(dohUri, content, cancellationToken);
+        using var response = await _httpClient.PostAsync(dohUri, content, cancellationToken);
         response.EnsureSuccessStatusCode();
 
         return await response.Content.ReadAsByteArrayAsync(cancellationToken);
-    }
-
-    private HttpClient GetDohHttpClient(DnsProvider provider)
-    {
-        if (provider.BootstrapIps is not { Count: > 0 })
-        {
-            return _httpClient;
-        }
-
-        var bootstrapKey = string.Join("|", provider.BootstrapIps);
-
-        lock (_dohClientLock)
-        {
-            if (_dohClient is not null && _dohClientProviderId == provider.Id && _dohClientBootstrapKey == bootstrapKey)
-            {
-                return _dohClient;
-            }
-
-            _dohClient?.Dispose();
-
-            var handler = new SocketsHttpHandler
-            {
-                PooledConnectionLifetime = TimeSpan.FromMinutes(10),
-                ConnectTimeout = TimeSpan.FromSeconds(10),
-                SslOptions = new SslClientAuthenticationOptions
-                {
-                    EnabledSslProtocols = SslProtocols.Tls12 | SslProtocols.Tls13
-                },
-                ConnectCallback = async (context, token) =>
-                {
-                    var host = context.DnsEndPoint.Host;
-                    var port = context.DnsEndPoint.Port;
-
-                    foreach (var ipStr in provider.BootstrapIps)
-                    {
-                        if (!IPAddress.TryParse(ipStr, out var ip))
-                            continue;
-
-                        try
-                        {
-                            var socket = new Socket(ip.AddressFamily, SocketType.Stream, ProtocolType.Tcp);
-                            await socket.ConnectAsync(new IPEndPoint(ip, port), token);
-                            return new NetworkStream(socket, ownsSocket: true);
-                        }
-                        catch (Exception ex)
-                        {
-                            _logger.LogDebug(ex, "Bootstrap IP connect failed: {Ip} ({Host})", ipStr, host);
-                        }
-                    }
-
-                    var addrs = Dns.GetHostAddresses(host);
-                    foreach (var addr in addrs)
-                    {
-                        try
-                        {
-                            var socket = new Socket(addr.AddressFamily, SocketType.Stream, ProtocolType.Tcp);
-                            socket.Connect(new IPEndPoint(addr, port));
-                            return new NetworkStream(socket, ownsSocket: true);
-                        }
-                        catch
-                        {
-                        }
-                    }
-
-                    throw new HttpRequestException($"Failed to connect to DoH host {host} using bootstrap IPs.");
-                }
-            };
-
-            var client = new HttpClient(handler)
-            {
-                Timeout = TimeSpan.FromSeconds(10)
-            };
-            client.DefaultRequestHeaders.Accept.Add(
-                new System.Net.Http.Headers.MediaTypeWithQualityHeaderValue("application/dns-message"));
-
-            _dohClient = client;
-            _dohClientProviderId = provider.Id;
-            _dohClientBootstrapKey = bootstrapKey;
-
-            return client;
-        }
     }
 
     private static byte[] BuildDnsQuery(string domain, ushort type)
@@ -597,6 +721,8 @@ public sealed class DnsProxyService : IDnsProxyService, IDisposable
         _udpClientV4?.Dispose();
         _udpClientV6?.Dispose();
         _httpClient.Dispose();
-        _dohClient?.Dispose();
+        _httpHandler.Dispose();
+        _resolveLock.Dispose();
+        _resolvedHosts.Clear();
     }
 }

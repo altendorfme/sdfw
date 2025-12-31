@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using System.Windows;
 using System.Windows.Controls;
 using Sdfw.Ui.ViewModels;
@@ -17,19 +18,26 @@ public partial class DashboardPage : Page
         DataContext = viewModel;
 
         InitializeComponent();
-
-        Loaded += OnLoaded;
-        Unloaded += OnUnloaded;
     }
 
     private async void OnLoaded(object sender, RoutedEventArgs e)
     {
         await _viewModel.LoadAsync();
-        _viewModel.StartRealTimeUpdates();
     }
 
-    private void OnUnloaded(object sender, RoutedEventArgs e)
+    private void OnDnsCheckClick(object sender, RoutedEventArgs e)
     {
-        _viewModel.StopRealTimeUpdates();
+        try
+        {
+            Process.Start(new ProcessStartInfo
+            {
+                FileName = "https://dnscheck.tools/",
+                UseShellExecute = true
+            });
+        }
+        catch
+        {
+            // Ignore errors opening URL
+        }
     }
 }
